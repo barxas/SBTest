@@ -21,9 +21,6 @@ public class MarketPage {
         new WebDriverWait(driver,10).until(
                 webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
         computerButton.click();
-        if(driver.getTitle().contains(title))
-            return true;
-        else
-            return false;
+        return driver.getTitle().contains(title);
     }
 }
