@@ -18,6 +18,15 @@ public class NotebookPage {
 
     private String filtersID;
     private String selectedFiltersID;
+    private String selectorSearchButton = "//button[@type=\"submit\"]";
+    private String selectorFilterCheck = "//div[@class=\"n-pager i-bem n-pager_js_inited\"]";
+    private String selectorSwitchAmount = "//div[@class=\"select__item\"]";
+    private String selectorShowButton = "//button[@type=\"button\" and @role=\"listbox\"]";
+    private String selectorListOfElements = "//div[@class=\"layout layout_type_search i-bem\"]//h3[@class=\"n-snippet-card2__title\"]";
+    private String selectorListOfFilters ="//legend[@class=\"ShXb4FpS5R\"]";
+    private String selectorSearchField ="//input[@id=\"header-search\"]";
+    private String selectorMaxPriceElement ="//input[@name=\"Цена до\"]";
+    private String selectorMinPriceElement ="//input[@name=\"Цена от\"]";
 
     private List<String> selectedFiltersListID;
 
@@ -40,21 +49,21 @@ public class NotebookPage {
     public String getID(WebElement we){
         JsonParser jsonParser = new JsonParser();
         JsonObject objectFromString = jsonParser.parse(we.findElement(By.xpath("./../../..")).getAttribute("data-zone-data")).getAsJsonObject();
-        return objectFromString.get("filterId").toString().replaceAll("\"","");
+        return objectFromString.get("filterId").getAsString();
 
     }
     public NotebookPage(WebDriver driver){
         this.driver = driver;
-        listOfFilters = driver.findElements(By.xpath("//legend[@class=\"ShXb4FpS5R\"]"));
+        listOfFilters = driver.findElements(By.xpath(selectorListOfFilters));
 
         selectedFiltersListID = new ArrayList<>();
 
 
         mapOfManufactures = new HashMap<>();
-        searchButton = driver.findElement(By.xpath("//button[@type=\"submit\"]"));
-        searchField = driver.findElement(By.xpath("//input[@id=\"header-search\"]"));
-        maxPriceElement = driver.findElement(By.xpath("//input[@name=\"Цена до\"]"));
-        minPriceElement = driver.findElement(By.xpath("//input[@name=\"Цена от\"]"));
+        searchButton = driver.findElement(By.xpath(selectorSearchButton));
+        searchField = driver.findElement(By.xpath(selectorSearchField));
+        maxPriceElement = driver.findElement(By.xpath(selectorMaxPriceElement));
+        minPriceElement = driver.findElement(By.xpath(selectorMinPriceElement));
 
 
     }
@@ -69,7 +78,12 @@ public class NotebookPage {
                         if (element.getText().equals(setManufacture)) {
                             selectedFiltersListID.add(element.findElement(By.xpath("./../input")).getAttribute("id").split("_")[1]);
                             element.click();
-                            elementsAreReady();
+                            for (int j = 0; j < 20; j++) {
+                                if(!elementsAreReady())
+                                    Thread.sleep(1000);
+                                else
+                                    break;
+                            }
                             break;
                         }
                     }
@@ -78,10 +92,10 @@ public class NotebookPage {
             }
         }
     }
-    public void elementsAreReady() throws InterruptedException {
+    public boolean elementsAreReady() {
         boolean bool = true;
         try {
-            WebElement filterCheck = driver.findElement(By.xpath("//div[@class=\"n-pager i-bem n-pager_js_inited\"]"));
+            WebElement filterCheck = driver.findElement(By.xpath(selectorFilterCheck));
             JsonParser jsonParser = new JsonParser();
             JsonObject objectFromString = jsonParser.parse(filterCheck.getAttribute("data-bem")).getAsJsonObject();
             filtersID = objectFromString.getAsJsonObject("n-pager").get("link").getAsJsonObject().getAsJsonObject("params").get("glfilter").toString();
@@ -100,17 +114,20 @@ public class NotebookPage {
         }catch (Exception e){
             bool = false;
         }
-        if(!bool){
-            Thread.sleep(5000);
-        }
+        return bool;
     }
 
     public void changeAmountOfElements() throws InterruptedException {
         pageIsReady(driver);
-        elementsAreReady();
-        WebElement showButton = driver.findElement(By.xpath("//button[@type=\"button\" and @role=\"listbox\"]"));
+        for (int i = 0; i < 20; i++) {
+            if(!elementsAreReady())
+                Thread.sleep(1000);
+            else
+                break;
+        }
+        WebElement showButton = driver.findElement(By.xpath(selectorShowButton));
         showButton.click();
-        driver.findElement(By.xpath("//div[@class=\"select__item\"]")).click();
+        driver.findElement(By.xpath(selectorSwitchAmount)).click();
     }
     public void setPriceFilters(String minPrice,String maxPrice){
         pageIsReady(driver);
@@ -121,8 +138,13 @@ public class NotebookPage {
         maxPriceElement.sendKeys(maxPrice);
     }
     public String getFirstElement() throws InterruptedException {
-        elementsAreReady();
-        listOfElements = driver.findElements(By.xpath("//div[@class=\"layout layout_type_search i-bem\"]//h3[@class=\"n-snippet-card2__title\"]"));
+        for (int i = 0; i < 20; i++) {
+            if(!elementsAreReady())
+                Thread.sleep(1000);
+            else
+                break;
+        }
+        listOfElements = driver.findElements(By.xpath(selectorListOfElements));
 
         return listOfElements.get(0).getText();
     }
@@ -140,7 +162,7 @@ public class NotebookPage {
     public boolean checkSearchProduct(String productName){
         pageIsReady(driver);
 
-        listOfElements = driver.findElements(By.xpath("//div[@class=\"layout layout_type_search i-bem\"]//h3[@class=\"n-snippet-card2__title\"]"));
+        listOfElements = driver.findElements(By.xpath(selectorListOfElements));
         boolean bool = false;
         for (WebElement we : listOfElements) {
             if (we.getText().equals(productName)) {

@@ -21,13 +21,9 @@ public class MarketPage {
         new WebDriverWait(driver,10).until(
                 webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
         computerButton.click();
-        boolean bool =false;
-        List<String> tabs = new ArrayList<>(driver.getWindowHandles());
-        for(String tab : tabs){
-            driver.switchTo().window(tab);
-            if(driver.getTitle().contains(title))
-                bool = true;
-        }
-        return bool;
+        if(driver.getTitle().contains(title))
+            return true;
+        else
+            return false;
     }
 }

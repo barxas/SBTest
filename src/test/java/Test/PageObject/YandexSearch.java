@@ -26,8 +26,10 @@ public class YandexSearch {
         List<String> tabs = new ArrayList<>(driver.getWindowHandles());
         for(String tab : tabs){
             driver.switchTo().window(tab);
-            if(driver.getTitle().contains(title))
+            if(driver.getTitle().contains(title)) {
                 bool = true;
+                break;
+            }
         }
         return bool;
     }
