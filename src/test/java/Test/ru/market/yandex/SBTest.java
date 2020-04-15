@@ -14,11 +14,10 @@ import java.util.List;
 
 public class SBTest extends WebSettings{
     private String url = "https://yandex.ru/";
-    //private String url = "https://market.yandex.ru/catalog--noutbuki/54544/list?hid=91013&local-offers-first=0&onstock=1";
 
 
     @Test
-    public void yandexMarletTest() throws InterruptedException {
+    public void yandexMarletTest(){
         try {
             driver.get(url);
         }catch (Exception e){
